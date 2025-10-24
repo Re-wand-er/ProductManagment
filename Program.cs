@@ -1,3 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
+using ProductManagment.Infrastructure.Persistence;
+
 namespace ProductManagment
 {
     public class Program
@@ -5,6 +9,23 @@ namespace ProductManagment
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // Добавлен для открытия страниц из нужной папки
+            // т.к. WebUI не представляет собой отдельного проекта 
+            builder.Services.AddControllersWithViews()
+                .AddRazorOptions(options =>
+                {
+                    options.ViewLocationFormats.Clear();
+                    options.ViewLocationFormats.Add("/WebUI/Views/{1}/{0}.cshtml");
+                    options.ViewLocationFormats.Add("/WebUI/Views/Shared/{0}.cshtml");
+                    options.ViewLocationFormats.Add("/WebUI/Views/Shared/{0}.cshtml");
+                });
+
+            //------------------------------------------------------------------------------------------------------------
+            builder.Services.AddDbContext<DataBaseContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            //------------------------------------------------------------------------------------------------------------
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
@@ -20,7 +41,13 @@ namespace ProductManagment
             }
 
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
+            // Аналогично использование wwwroot из папки WebUI
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(builder.Environment.ContentRootPath, "WebUI", "wwwroot")),
+                RequestPath = ""
+            });
 
             app.UseRouting();
 
