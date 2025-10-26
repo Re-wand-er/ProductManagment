@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using ProductManagment.Domain.Interfaces;
 using ProductManagment.Infrastructure.Persistence;
+using ProductManagment.Infrastructure.Persistence.Repositories;
 
 namespace ProductManagment
 {
@@ -17,6 +20,7 @@ namespace ProductManagment
                 {
                     options.ViewLocationFormats.Clear();
                     options.ViewLocationFormats.Add("/WebUI/Views/{1}/{0}.cshtml");
+                    options.ViewLocationFormats.Add("/WebUI/Views/Home/{0}.cshtml");
                     options.ViewLocationFormats.Add("/WebUI/Views/Shared/{0}.cshtml");
                     options.ViewLocationFormats.Add("/WebUI/Views/Shared/{0}.cshtml");
                 });
@@ -25,6 +29,10 @@ namespace ProductManagment
             builder.Services.AddDbContext<DataBaseContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
             //------------------------------------------------------------------------------------------------------------
 
             // Add services to the container.
