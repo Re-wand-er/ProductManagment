@@ -1,0 +1,46 @@
+﻿@model CreateProductModel
+@{
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <form method="post" asp-controller="Edit" asp-action="@(Model.Id == 0 ? "Create" : "Update")">
+        <input asp-for="Id" type="hidden" />
+        <div>
+            <label asp-for="Name">Название продукта</label>
+            <input asp-for="Name" class="form-control" required/>
+        </div>
+        <div>
+            <label asp-for="Category">Категория</label>
+            <select asp-for="CategoryId" asp-items="@(new SelectList(Model.Categories, "Id", "Name"))" required>
+                <option value="">Выберите категорию</option>
+            </select>
+        </div>
+        <div>
+            <label asp-for="Description">Описание</label>
+            <input asp-for="Description" class="form-control" />
+        </div>
+        <div>
+            <label asp-for="Cost">Стоимость</label>
+            <input asp-for="Cost" type="number" class="form-control" required/>
+        </div>
+        <div>
+            <label asp-for="GeneralNote">Примечание общее</label>
+            <input asp-for="GeneralNote" class="form-control" />
+        </div>
+        <div>
+            <label asp-for="SpecialNote">Примечание специальное</label>
+            <input asp-for="SpecialNote" class="form-control" />
+        </div>
+
+        <button class="btn btn-success">Сохранить</button>
+    </form>
+</body>
+</html>
+

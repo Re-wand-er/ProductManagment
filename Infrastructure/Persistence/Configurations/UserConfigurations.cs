@@ -16,6 +16,7 @@ namespace ProductManagment.Infrastructure.Persistence.Configurations
 
             builder.HasIndex(u => u.Email).IsUnique();
             builder.Property(u => u.Email).HasMaxLength(100).IsRequired();
+            builder.Property(u => u.IsBlocked).IsRequired();
 
             builder
                 .HasOne(u => u.Role)

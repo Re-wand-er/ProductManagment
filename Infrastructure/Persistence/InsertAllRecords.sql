@@ -12,3 +12,13 @@ values
 
 insert into Roles (Name)
 values(N'Простой пользователь'),(N'Продвинутый пользователь'),(N'Администратор')
+
+select * from Roles
+
+insert into Users (RoleId, Login, PasswordHash, Email)
+values 
+(1, N'Простой Пользователь1', N'Простой Пользователь', N'prostpolz1@example.com'),  
+(2, N'Продвинутый Пользователь1', N'Продвинутый Пользователь', N'prodvpolz1@example.com'), 
+(1, N'Простой Пользователь2', N'Простой Пользователь', N'prostpolz2@example.com'),    
+(3, N'Администратор', N'Администратор', N'admin@example.com'),   
+(2, N'Продвинутый Пользователь', N'Продвинутый Пользователь', N'prodvpolz2@example.com'); 

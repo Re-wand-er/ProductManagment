@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using ProductManagment.Application.Services;
 using ProductManagment.Domain.Interfaces;
 using ProductManagment.Infrastructure.Persistence;
 using ProductManagment.Infrastructure.Persistence.Repositories;
@@ -33,10 +34,18 @@ namespace ProductManagment
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<IRoleRepository, RoleRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<IUserService, UserService>();
             //------------------------------------------------------------------------------------------------------------
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddHttpClient("ApiClient", client =>
+            {
+                // Используется для Api
+                client.BaseAddress = new Uri("https://localhost:7248/"); 
+            });
 
             var app = builder.Build();
 

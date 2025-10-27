@@ -1,0 +1,77 @@
+﻿@model IEnumerable<ProductModel>
+@{
+    ViewData["Title"] = "Продукты";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+    <form asp-controller="Product" asp-action="Create" method="post">
+        <button type="submit">Добавить</button>
+    </form>
+
+    <table>
+        <tr>
+            <th width="15">Наименование продукта</th>
+            <th>Категория</th>
+            <th>Описание</th>
+            <th>Стоимость в рублях</th>
+            <th>Примечание общее</th>
+            <th>Примечание специальное</th>
+        </tr>
+
+        @foreach (var product in Model)
+        {
+            <tr id="row-@product.Id">
+                <td>@product.Name</td>
+                <td>@product.Category</td>
+                <td>@product.Description</td>
+                <td>@product.Cost</td>
+                <td>@product.GeneralNote</td>
+                <td>@product.SpecialNote</td>
+
+                <td class="action-buttons">
+
+                    <form asp-controller="Product" asp-action="Edit" asp-route-id="@product.Id" method="post">
+                        <button type="submit">Редактировать</button>
+                    </form>
+
+                    <form asp-controller="Product" asp-action="Delete" asp-route-id="@product.Id" method="post">
+                        <button type="submit" class="btn btn-danger">Удалить</button>
+                    </form>
+                </td>
+
+            </tr>
+        }
+    </table>
+    <script>
+        async function deleteProduct(id)
+        {
+            if (!confirm('Удалить запись?')) return;
+
+            const response = await fetch(`/api/ProductApi/${id}`,
+            {
+                method: 'DELETE',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+
+            if (!response.ok) {
+                alert('Ошибка при удалении');
+                return;
+            }
+
+            const data = await response.json();
+
+            if (data.success) 
+            {
+                document.getElementById(`row-${id}`)?.remove();
+            }
+        }
+    </script>
+</body>
+</html>

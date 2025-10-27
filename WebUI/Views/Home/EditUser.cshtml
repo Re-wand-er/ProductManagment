@@ -1,0 +1,38 @@
+﻿@model CreateUserModel
+@{
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <form method="post" asp-controller="EditUser" asp-action="@(Model.Id == 0 ? "Create" : "Update")">
+        <input asp-for="Id" type="hidden" />
+        <div>
+            <label asp-for="Login">Логин</label>
+            <input asp-for="Login" class="form-control" required />
+        </div>
+        <div>
+            <label asp-for="SystemRole">Роль</label>
+            <select asp-for="SystemRoleId" asp-items="@(new SelectList(Model.Roles, "Id", "Name"))" required>
+                <option value="">Выберите роль</option>
+            </select>
+        </div>
+        <div>
+            <label asp-for="Email">Электронная почта</label>
+            <input asp-for="Email" type="email" class="form-control" required />
+        </div>
+        <div>
+            <label asp-for="Password">Пароль</label>
+            <input asp-for="Password" class="form-control" required />
+        </div>
+
+        <button class="btn btn-success">Сохранить</button>
+    </form>
+</body>
+</html>
+

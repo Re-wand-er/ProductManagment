@@ -3,7 +3,7 @@ using ProductManagment.Infrastructure.Persistence.Repositories;
 
 namespace ProductManagment.Domain.Interfaces
 {
-    interface ICategoryRepository : IBaseRepository<Category>
+    public interface ICategoryRepository : IBaseRepository<Category>
     {
     }
 }

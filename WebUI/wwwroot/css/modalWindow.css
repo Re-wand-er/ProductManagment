@@ -1,0 +1,51 @@
+﻿<style >
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    width: 50%;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #333;
+}
+
+#closeModalBtn {
+    cursor: pointer;
+}
+
+</style >
+
+<button id="openModalBtn" > Открыть модальное окно</button >
+<div id="modal" class="modal" >
+
+<div class="modal-content" >
+
+<div class="modal-header" >
+
+<h2 > Модальное окно</h2 >
+
+<button id="closeModalBtn" > &times;</button >
+
+</div >
+
+<p > Содержимое модального окна...</p >
+
+</div >
+
+</div >

@@ -44,6 +44,9 @@ create table Users
 
 	foreign key (RoleID) References Roles(id)
 )
+
+ALTER TABLE Users
+ADD IsBlocked bit NOT NULL DEFAULT(0);
 go
 
 -- create trigger Product_Update

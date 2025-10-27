@@ -1,0 +1,51 @@
+﻿@model IEnumerable<UserModel>
+@{
+    ViewData["Title"] = "Пользователи";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <form asp-controller="User" asp-action="Create" method="post">
+        <button type="submit">Добавить</button>
+    </form>
+    <table>
+        <tr>
+            <th width="15">Логин</th>
+            <th>Системная Роль</th>
+            <th>Почта</th>
+            <th>Блокировка</th>
+        </tr>
+    
+        @foreach(var user in Model)
+        {
+            <tr>
+                <td>@user.Login</td>
+                <td>@user.SystemRole</td>
+                <td>@user.Email</td>
+                <td><span>@(user.IsBlocked ? "Да" : "Нет")</span></td>
+                <td class="action-buttons">
+
+                    <form asp-controller="User" asp-action="Edit" asp-route-id="@user.Id" method="post">
+                        <button type="submit">Редактировать</button>
+                    </form>
+
+                    <form asp-controller="User" asp-action="Block" asp-route-id="@user.Id" method="post">
+                        <button type="submit">@(user.IsBlocked ? "Разблокировать" : "Заблокировать")</button>
+                    </form>
+
+                    <form asp-controller="User" asp-action="Delete" asp-route-id="@user.Id" method="post">
+                        <button type="submit" >Удалить</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </table>
+</body>
+</html>
+
