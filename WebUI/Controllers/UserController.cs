@@ -1,10 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Diagnostics;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using ProductManagment.Application.Interfaces;
+using ProductManagment.Application.Services;
 using ProductManagment.Domain.Interfaces;
 using ProductManagment.Infrastructure.Persistence.Repositories;
 using ProductManagment.WebUI.Models;
 
 namespace ProductManagment.WebUI.Controllers
 {
+    [Authorize(Roles = "Administrator")]
     public class UserController : Controller
     {
         private readonly IUserService _userService;
@@ -22,9 +28,31 @@ namespace ProductManagment.WebUI.Controllers
             return View("EditUser", createUser);
         }
 
-        public IActionResult Edit()
+        public async Task<IActionResult> Edit(int id)
         {
-            return View();
+            CreateUserModel createUser;
+
+            var roles = await GetRolesAsync();
+            var result = await _userService.GetValueById(id);
+
+            if (result != null)
+            {
+                createUser = new CreateUserModel()
+                {
+                    Id = result.Id,
+                    Login = result.Login,
+                    SystemRole = result.SystemRole,
+                    SystemRoleId = result.SystemRoleId,
+                    Roles = roles,
+                    Email = result.Email
+                };
+            }
+            else
+            {
+                createUser = new CreateUserModel() { Roles = roles };
+            }
+
+            return View("EditUser", createUser);
         }
 
         public async Task<IActionResult> Block(int id) 

@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ProductManagment.Application.DTOs;
-using ProductManagment.Domain.Interfaces;
+using ProductManagment.Application.Interfaces;
 using ProductManagment.WebUI.Models;
 
 namespace ProductManagment.WebUI.Controllers
 {
+    [Authorize]
     public class EditProductController : Controller
     {
         private readonly IProductService _productService;

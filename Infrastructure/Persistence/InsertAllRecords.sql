@@ -11,7 +11,7 @@ values
 (3, N'Квас ', N'В бутылках', 15.000, N'Вятский', N'Теплый')
 
 insert into Roles (Name)
-values(N'Простой пользователь'),(N'Продвинутый пользователь'),(N'Администратор')
+values(N'SimpleUser'),(N'AdvancedUser'),(N'administrator')
 
 select * from Roles
 

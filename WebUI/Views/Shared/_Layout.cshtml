@@ -23,8 +23,22 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Product">Продукты</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Category">Категории</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Users">Пользователи</a>
                         </li>
+                    </ul>
+
+                    <ul class="navbar-nav">
+                        @if (User.Identity?.IsAuthenticated ?? false)
+                        {
+                            <li class="nav-item">
+                                <form asp-controller="Login" asp-action="Logout" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-danger">Выйти</button>
+                                </form>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ProductManagment.Application.DTOs;
-using ProductManagment.Domain.Interfaces;
+using ProductManagment.Application.Interfaces;
 using ProductManagment.WebUI.Models;
 
 namespace ProductManagment.WebUI.Controllers
 {
+    [Authorize]
     public class EditUserController : Controller
     {
         private readonly IUserService _userService;
@@ -19,11 +21,11 @@ namespace ProductManagment.WebUI.Controllers
             return RedirectToAction("Users", "User");
         }
 
-        //public IActionResult Update(CreateUserModel userModel)
-        //{
-        //    _userService.Update(GetProductDTO(userModel));
-        //    return RedirectToAction("User", "Users");
-        //}
+        public async Task<IActionResult> Update(CreateUserModel userModel)
+        {
+            await _userService.UpdatePasswordAsync(userModel.Id, userModel.Password);
+            return RedirectToAction("Users", "User");
+        }
 
         private UserWithPasswordDTO GetProductDTO(CreateUserModel userModel)
         {

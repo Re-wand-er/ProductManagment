@@ -1,21 +1,25 @@
 ﻿using ProductManagment.Domain.Interfaces;
 using ProductManagment.Application.DTOs;
 using ProductManagment.Domain.Entities;
+using ProductManagment.Application.Interfaces;
 
 namespace ProductManagment.Application.Services
 {
     public class ProductService : IProductService
     {
-        private readonly IProductRepository _repository; 
-        public ProductService(IProductRepository productRepository) 
+        private readonly IProductRepository _repository;
+        private readonly ILogger<ProductService> _logger;
+        public ProductService(IProductRepository productRepository, ILogger<ProductService> logger) 
         { 
             _repository = productRepository; 
+            _logger = logger;
         }
 
         public async Task<IEnumerable<ProductDTO>> GetAll() 
         {
-            var productEntities = await _repository.GetAllAsync();
+            _logger.LogInformation("Получение всех продуктов с категориями");
 
+            var productEntities = await _repository.GetAllAsync();
             var product = productEntities
                 .Select(p => new ProductDTO(p.Id, p.Name, p.CategoryId, p.Category.Name, p.Description, p.Cost, p?.GeneralNote ?? "", p?.SpecialNote ?? ""))
                 .ToList();
@@ -25,6 +29,8 @@ namespace ProductManagment.Application.Services
 
         public async Task<ProductDTO?> GetValueById(int id) 
         {
+            _logger.LogInformation($"Получение продукта с id: {id}");
+
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null) { return null; }
 
@@ -34,6 +40,8 @@ namespace ProductManagment.Application.Services
 
         public async Task AddAsync(ProductDTO productDTO) 
         {
+            _logger.LogInformation($"Добавление продукта: {productDTO.Name}; {productDTO.Cost}; {productDTO.Description}");
+
             var product = new Product()
             {
                 Name = productDTO.Name,
@@ -43,13 +51,15 @@ namespace ProductManagment.Application.Services
                 GeneralNote = productDTO.GeneralNote,
                 SpecialNote = productDTO.SpecialNote,
             };
-
+            
             await _repository.AddAsync(product);
             await _repository.SaveChangesAsync();
         }
 
         public async Task Update(ProductDTO productDTO) 
         {
+            _logger.LogInformation($"Обновление продукта: {productDTO.Name}; {productDTO.Cost}; {productDTO.Description}");
+
             var product = new Product()
             {
                 Id = productDTO.Id,
@@ -67,6 +77,8 @@ namespace ProductManagment.Application.Services
 
         public async Task Delete(int id) 
         {
+            _logger.LogInformation($"Удаление продукта с id: {id}");
+
             await _repository.DeleteAsync(id);
             await _repository.SaveChangesAsync();
         }

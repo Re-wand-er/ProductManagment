@@ -11,6 +11,7 @@ namespace ProductManagment.Infrastructure.Persistence.Configurations
             builder.HasKey(u => u.Id);
             builder.ToTable("Users", schema: "dbo");
 
+            builder.HasIndex(u => u.Login).IsUnique();
             builder.Property(u => u.Login).HasMaxLength(100).IsRequired();
             builder.Property(u => u.PasswordHash).HasMaxLength(255).IsRequired();
 

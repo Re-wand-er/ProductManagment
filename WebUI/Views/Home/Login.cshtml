@@ -1,0 +1,20 @@
+﻿@model LoginModel
+@{
+}
+
+<form method="post">
+    <div>
+        <label asp-for="Login">Логин</label>
+        <input asp-for="Login" class="form-control" required/>
+    </div>
+    <div>
+        <label asp-for="Password">Пароль</label>
+        <input asp-for="Password" class="form-control" autocomplete="new-password" required />
+    </div>
+
+    <button type="submit" asp-controller="Login" asp-action="Login">Войти</button>
+</form>
+@if (ViewBag.Error != null)
+{
+    <div style="color:red">@ViewBag.Error</div>
+}

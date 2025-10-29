@@ -14,21 +14,36 @@
         <input asp-for="Id" type="hidden" />
         <div>
             <label asp-for="Login">Логин</label>
-            <input asp-for="Login" class="form-control" required />
+            <input asp-for="Login" class="form-control" required readonly="@(Model.Id != 0)"/>
         </div>
         <div>
             <label asp-for="SystemRole">Роль</label>
-            <select asp-for="SystemRoleId" asp-items="@(new SelectList(Model.Roles, "Id", "Name"))" required>
-                <option value="">Выберите роль</option>
-            </select>
+            @if (Model.Id == 0)
+            {
+                <select asp-for="SystemRoleId"
+                        asp-items="@(new SelectList(Model.Roles, "Id", "Name"))"
+                        required>
+                    <option value="">Выберите роль</option>
+                </select>
+            }
+            else
+            {
+                <select asp-for="SystemRoleId"
+                        asp-items="@(new SelectList(Model.Roles, "Id", "Name"))"
+                        disabled>
+                    <option value="">Выберите роль</option>
+                </select>
+                <input type="hidden" asp-for="SystemRoleId" />
+            }
+
         </div>
         <div>
             <label asp-for="Email">Электронная почта</label>
-            <input asp-for="Email" type="email" class="form-control" required />
+            <input asp-for="Email" type="email" class="form-control" required readonly="@(Model.Id != 0)" />
         </div>
         <div>
             <label asp-for="Password">Пароль</label>
-            <input asp-for="Password" class="form-control" required />
+            <input asp-for="Password" class="form-control" autocomplete="new-password" required />
         </div>
 
         <button class="btn btn-success">Сохранить</button>

@@ -47,6 +47,9 @@ create table Users
 
 ALTER TABLE Users
 ADD IsBlocked bit NOT NULL DEFAULT(0);
+
+Alter Table Users
+add constraint Login_Unique unique(Login);
 go
 
 -- create trigger Product_Update

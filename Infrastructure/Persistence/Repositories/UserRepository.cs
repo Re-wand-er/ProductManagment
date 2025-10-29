@@ -14,5 +14,21 @@ namespace ProductManagment.Infrastructure.Persistence.Repositories
                 .Include(u => u.Role)
                 .ToListAsync();
         }
+
+        public override async Task<User?> GetByIdAsync(int id)
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public async Task<User?> GetUserByLogin(string login) 
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(p => p.Login == login);
+        }
     }
 }

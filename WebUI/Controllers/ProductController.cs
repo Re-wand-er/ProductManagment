@@ -1,25 +1,23 @@
 ﻿using System.Text.Json;
 using ProductManagment.WebUI.Models;
 using Microsoft.AspNetCore.Mvc;
-using ProductManagment.Application.Services;
-using ProductManagment.Domain.Interfaces;
-using ProductManagment.Application.DTOs;
-using ProductManagment.Domain.Entities;
-using ProductManagment.Infrastructure.Persistence.Repositories;
+using Microsoft.AspNetCore.Authorization;
+using ProductManagment.Application.Interfaces;
 
 namespace ProductManagment.WebUI.Controllers
 {
+    [Authorize]
     public class ProductController : Controller
     {
-        private static List<ProductModel> _products = new List<ProductModel>();
-
         private readonly IProductService _productService;
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly ICategoryService _categoryService;
+        private readonly ILogger<ProductController> _logger;
 
-        public ProductController(IProductService productService, ICategoryRepository categoryRepository)
+        public ProductController(IProductService productService, ICategoryService categoryService, ILogger<ProductController> logger)
         {
             this._productService = productService;
-            this._categoryRepository = categoryRepository;
+            this._categoryService = categoryService;
+            _logger = logger;
         }
 
         //private readonly HttpClient _httpClient;
@@ -32,7 +30,7 @@ namespace ProductManagment.WebUI.Controllers
         {
             var createProduct = new CreateProductModel() { Categories = await GetCategoriesAsync() };
 
-            return View("Edit", createProduct);
+            return View("EditProduct", createProduct);
         }
 
         public async Task<IActionResult> Edit(int id) 
@@ -62,18 +60,20 @@ namespace ProductManagment.WebUI.Controllers
                 product = new CreateProductModel() { Categories = categories };
             }
 
-            return View("Edit", product);
+            return View("", product);
         }
 
         [HttpGet]
         public async Task<IActionResult> Product()
         {
+            _logger.LogInformation("Получение продуктов");
             //var productsDTO = await GetObjectListAsync<ProductDTO>("api/ProductApi");
 
             return View(await GetProductsAsync());
         }
 
         [HttpPost("{id}")]
+        [Authorize(Roles = "AdvancedUser,Administrator")]
         public async Task<IActionResult> Delete(int id) 
         {
             //var response = await _httpClient.DeleteAsync($"api/ProductApi/{id}");
@@ -107,7 +107,7 @@ namespace ProductManagment.WebUI.Controllers
 
         private async Task<List<CategoryModel>> GetCategoriesAsync() 
         {
-            var categoriesEntity = await _categoryRepository.GetAllAsync();
+            var categoriesEntity = await _categoryService.GetAll();
             return categoriesEntity.Select(c => new CategoryModel() { Id = c.Id, Name = c.Name }).ToList();
         }
 

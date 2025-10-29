@@ -1,6 +1,44 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model CategoryViewModel
 @{
     ViewData["Title"] = "Категории";
 }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <div>
+        <label asp-for="Category">Категория для добавления</label>
+        <input asp-for="Category" class="form-control" required />
+    </div>
+
+    <form asp-controller="Category" asp-action="Add" asp-route-category="@Model.Category" method="post">
+        <button type="submit">Добавить</button>
+    </form>
+    <table>
+        <tr>
+            <th width="15">Категория</th>
+        </tr>
+
+        @foreach (var category in Model.categoryModels!)
+        {
+            <tr>
+                <td>@category.Name</td>
+                <td class="action-buttons">
+
+                    <form asp-controller="Category" asp-action="Edit" asp-route-id="@category.Id" method="post">
+                        <button type="submit">Редактировать</button>
+                    </form>
+
+                    <form asp-controller="Category" asp-action="Delete" asp-route-id="@category.Id" method="post">
+                        <button type="submit">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </table>
+</body>
+</html>

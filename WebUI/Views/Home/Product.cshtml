@@ -22,7 +22,10 @@
             <th>Описание</th>
             <th>Стоимость в рублях</th>
             <th>Примечание общее</th>
-            <th>Примечание специальное</th>
+            @if (User.IsInRole("AdvancedUser") || User.IsInRole("Administrator"))
+            {
+                <th>Примечание специальное</th>
+            }
         </tr>
 
         @foreach (var product in Model)
@@ -31,9 +34,14 @@
                 <td>@product.Name</td>
                 <td>@product.Category</td>
                 <td>@product.Description</td>
-                <td>@product.Cost</td>
+                <td>
+                    <span class="price" data-value="@product.Cost">@product.Cost</span> *
+                </td>
                 <td>@product.GeneralNote</td>
-                <td>@product.SpecialNote</td>
+                @if (User.IsInRole("AdvancedUser") || User.IsInRole("Administrator"))
+                {
+                    <td>@product.SpecialNote</td>
+                }
 
                 <td class="action-buttons">
 
@@ -41,9 +49,12 @@
                         <button type="submit">Редактировать</button>
                     </form>
 
-                    <form asp-controller="Product" asp-action="Delete" asp-route-id="@product.Id" method="post">
-                        <button type="submit" class="btn btn-danger">Удалить</button>
-                    </form>
+                    @if (User.IsInRole("AdvancedUser") || User.IsInRole("Administrator"))
+                    {
+                        <form asp-controller="Product" asp-action="Delete" asp-route-id="@product.Id" method="post">
+                            <button type="submit" class="btn btn-danger">Удалить</button>
+                        </form>
+                    }
                 </td>
 
             </tr>
@@ -72,6 +83,16 @@
                 document.getElementById(`row-${id}`)?.remove();
             }
         }
+
+        document.querySelectorAll('.price').forEach(p => {
+            p.addEventListener('mouseenter', async () => {
+                const rub = p.dataset.value.replace(',', '.');
+                const res = await fetch('/api/Currency?value=' + rub);
+                const usd = await res.text();
+                alert('Стоимость в USD: ' + usd);
+            });
+        });
+
     </script>
 </body>
 </html>

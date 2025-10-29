@@ -1,6 +1,6 @@
 ﻿using ProductManagment.Application.DTOs;
 
-namespace ProductManagment.Domain.Interfaces
+namespace ProductManagment.Application.Interfaces
 {
     public interface IProductService
     {
