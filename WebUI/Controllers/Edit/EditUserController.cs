@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ProductManagment.Application.DTOs;
-using ProductManagment.Application.Interfaces;
+using ProductManagment.WebUI.Contracts;
 using ProductManagment.WebUI.Models;
 
 namespace ProductManagment.WebUI.Controllers
@@ -9,27 +8,33 @@ namespace ProductManagment.WebUI.Controllers
     [Authorize]
     public class EditUserController : Controller
     {
-        private readonly IUserService _userService;
-        public EditUserController(IUserService userService)
-        {
-            this._userService = userService;
-        }
+        private readonly ApiClient _apiClient;
+        public EditUserController(ApiClient apiClient) { _apiClient = apiClient; }
 
-        public async Task<IActionResult> Create(CreateUserModel userModel)
+        public async Task<IActionResult> Add(CreateUserModel userModel)
         {
-            await _userService.Add(GetProductDTO(userModel));
+            await SendObjectToAction(userModel, "add");
             return RedirectToAction("Users", "User");
         }
 
         public async Task<IActionResult> Update(CreateUserModel userModel)
         {
-            await _userService.UpdatePasswordAsync(userModel.Id, userModel.Password);
+            await SendObjectToAction(userModel, "update");
             return RedirectToAction("Users", "User");
         }
 
-        private UserWithPasswordDTO GetProductDTO(CreateUserModel userModel)
+        private async Task SendObjectToAction(CreateUserModel userModel, string action) 
         {
-            return new UserWithPasswordDTO(userModel.Id,userModel.Login, userModel.SystemRoleId, userModel.SystemRole, userModel.Email, userModel.Password);
+            var user = new
+            {
+                Id = userModel.Id,
+                Login = userModel.Login,
+                SystemRoleId = userModel.SystemRoleId,
+                SystemRole = userModel.SystemRole,
+                Email = userModel.Email,
+                Password = userModel.Password
+            };
+            await _apiClient.SendObject($"api/UserApi/{action}", user);
         }
     }
 }

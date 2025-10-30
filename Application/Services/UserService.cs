@@ -40,11 +40,12 @@ namespace ProductManagment.Application.Services
             return user;
         }
 
-        public async Task<UserDTO?> GetnValueByLogin(string login) 
+        public async Task<UserDTO?> GetValueByLogin(string login) 
         {
             _logger.LogInformation($"Получение пользователя по логину: {login}");
 
             var entity = await _userRepository.GetUserByLogin(login);
+            // ВАЛИДАЦИЯ
             if (entity == null) { return null; }
 
             var user = new UserDTO(entity.Id, entity.Login, entity.Role.Name, entity.Email, entity.IsBlocked);
@@ -62,7 +63,7 @@ namespace ProductManagment.Application.Services
                 Email = userDTO.Email,
                 PasswordHash = userDTO.Password
             };
-
+            // Проверка на валидацию/ошибки и т.д.
             await _userRepository.AddAsync(user);
             await _userRepository.SaveChangesAsync();
         }
@@ -86,6 +87,7 @@ namespace ProductManagment.Application.Services
             var entity = _userRepository.DeleteAsync(id);
             await _userRepository.SaveChangesAsync();
         }
+
 
         public async Task Block(int id) 
         {

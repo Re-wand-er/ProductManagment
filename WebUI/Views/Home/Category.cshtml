@@ -10,12 +10,12 @@
 </head>
 
 <body>
-    <div>
-        <label asp-for="Category">Категория для добавления</label>
-        <input asp-for="Category" class="form-control" required />
-    </div>
+    <form asp-controller="Category" asp-action="Add" method="post">
+        <div>
+            <label asp-for="Category">Категория для добавления</label>
+            <input asp-for="Category" class="form-control" required />
+        </div>
 
-    <form asp-controller="Category" asp-action="Add" asp-route-category="@Model.Category" method="post">
         <button type="submit">Добавить</button>
     </form>
     <table>

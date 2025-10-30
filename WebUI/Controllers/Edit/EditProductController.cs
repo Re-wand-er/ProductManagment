@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ProductManagment.Application.DTOs;
 using ProductManagment.Application.Interfaces;
+using ProductManagment.WebUI.Contracts;
 using ProductManagment.WebUI.Models;
 
 namespace ProductManagment.WebUI.Controllers
@@ -9,27 +10,35 @@ namespace ProductManagment.WebUI.Controllers
     [Authorize]
     public class EditProductController : Controller
     {
-        private readonly IProductService _productService;
-        public EditProductController(IProductService productService) 
-        { 
-            this._productService = productService; 
-        }
+        private readonly ApiClient _apiClient;
+        public EditProductController(ApiClient apiClient) { _apiClient = apiClient; }
 
         public async Task<IActionResult> Create(CreateProductModel productModel)
         {
-            await _productService.AddAsync(GetProductDTO(productModel));
+            await SendObjectToAction(productModel, "add");
             return RedirectToAction("Product", "Product");
         }
 
-        public IActionResult Update(CreateProductModel productModel) 
+        public async Task<IActionResult> Update(CreateProductModel productModel) 
         {
-            _productService.Update(GetProductDTO(productModel));
+            await SendObjectToAction(productModel, "update");
             return RedirectToAction("Product", "Product");
         }
 
-        private ProductDTO GetProductDTO(CreateProductModel productModel) 
-        { 
-            return new ProductDTO(productModel.Id, productModel.Name, productModel.CategoryId, productModel.Category, productModel.Description ?? "", productModel.Cost, productModel.GeneralNote ?? "", productModel.SpecialNote ?? "");
+        private async Task SendObjectToAction(CreateProductModel productModel, string action)
+        {
+            var product = new
+            {
+                Id = productModel.Id,
+                Name = productModel.Name,
+                CategoryId = productModel.CategoryId,
+                Category = productModel.Category,
+                Description = productModel.Description,
+                Cost = productModel.Cost,
+                GeneralNote = productModel.GeneralNote,
+                SpecialNote = productModel.SpecialNote
+            };
+            await _apiClient.SendObject($"api/ProductApi/{action}", product);
         }
     }
 }

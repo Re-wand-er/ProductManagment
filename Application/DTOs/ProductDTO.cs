@@ -5,10 +5,10 @@
         int Id,
         string Name,
         int CategoryId,
-        string Category,
-        string Description,
+        string? Category,
+        string? Description,
         decimal Cost,
-        string GeneralNote,
-        string SpecialNote
+        string? GeneralNote,
+        string? SpecialNote
     );
 }

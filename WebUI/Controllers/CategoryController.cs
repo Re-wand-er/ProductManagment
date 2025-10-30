@@ -2,43 +2,39 @@
 using ProductManagment.WebUI.Models;
 using Microsoft.AspNetCore.Authorization;
 using ProductManagment.Application.Interfaces;
+using ProductManagment.WebUI.Contracts;
 
 namespace ProductManagment.WebUI.Controllers
 {
     [Authorize(Roles = "AdvancedUser,Administrator")]
     public class CategoryController : Controller
     {
-        private readonly ICategoryService _categoryService;
+        private readonly ApiClient _apiClient;
 
-        public CategoryController(ICategoryService categoryService)
+        public CategoryController(ApiClient apiClient)
         {
-            _categoryService = categoryService;
+            _apiClient = apiClient;
         }
 
-        public async Task<IActionResult> Category() 
-        { 
-            return View(await GetCategoryAsync());
+        public async Task<IActionResult> Category()
+        {
+            var category = await _apiClient.GetObjectListAsync<CategoryModel>("api/CategoryApi");
+            var model = new CategoryViewModel() { categoryModels = category};
+            return View(model);
         }
 
         public async Task<IActionResult> Delete(int id) 
         {
-            await _categoryService.Delete(id);
-            return View("Category", await GetCategoryAsync());
+            await _apiClient.DeleteObject($"api/CategoryApi/delete/{id}");
+            return RedirectToAction("Category", "Category");
         }
 
-        private async Task<CategoryViewModel> GetCategoryAsync() 
+        public async Task<IActionResult> Add(CategoryViewModel model) 
         {
-            var categoryEntity = await _categoryService.GetAll();
-            var categories = categoryEntity
-                .Select(c => new CategoryModel() { Id = c.Id, Name = c.Name })
-                .ToList();
+            if (string.IsNullOrWhiteSpace(model.Category)) return View("Category", model);
 
-            return new CategoryViewModel() { categoryModels = categories }; 
-        }
-
-        public async Task Add(string category) 
-        {
-            await _categoryService.Add(category);
+            await _apiClient.SendObject("api/CategoryApi/add", model.Category);
+            return RedirectToAction("Category", "Category");
         }
     }
 }

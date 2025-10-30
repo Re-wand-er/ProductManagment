@@ -10,7 +10,7 @@ namespace ProductManagment.WebUI.Models
         [Required]
         public string Name { get; set; } = null!;
         [Required]
-        public string Category { get; set; } = null!;
+        public string? Category { get; set; }
         public string? Description { get; set; }
         [Required]
         public decimal Cost { get; set; }

@@ -31,6 +31,7 @@ namespace ProductManagment.Application.Services
 
         public async Task Add(string category) 
         {
+            if (category == "") return;
             _logger.LogInformation($"Добавление категории: {category}");
 
             var categoryEntity = new Category()

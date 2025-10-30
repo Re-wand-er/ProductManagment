@@ -6,7 +6,7 @@ namespace ProductManagment.Infrastructure.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CurrencyController : ControllerBase
+    public class CurrencyApiController : ControllerBase
     {
         private static decimal? offRate;
         private readonly HttpClient _httpClient = new();

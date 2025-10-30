@@ -3,33 +3,25 @@ using ProductManagment.WebUI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using ProductManagment.Application.Interfaces;
+using ProductManagment.WebUI.Contracts;
 
 namespace ProductManagment.WebUI.Controllers
 {
     [Authorize]
     public class ProductController : Controller
     {
-        private readonly IProductService _productService;
-        private readonly ICategoryService _categoryService;
+        private readonly ApiClient _apiClient;
         private readonly ILogger<ProductController> _logger;
 
-        public ProductController(IProductService productService, ICategoryService categoryService, ILogger<ProductController> logger)
+        public ProductController(ILogger<ProductController> logger, ApiClient apiClient)
         {
-            this._productService = productService;
-            this._categoryService = categoryService;
             _logger = logger;
+            _apiClient = apiClient;
         }
 
-        //private readonly HttpClient _httpClient;
-        //public CustomController(IHttpClientFactory factory)
-        //{
-        //    _httpClient = factory.CreateClient("ApiClient");
-        //}
-
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Add()
         {
             var createProduct = new CreateProductModel() { Categories = await GetCategoriesAsync() };
-
             return View("EditProduct", createProduct);
         }
 
@@ -38,91 +30,29 @@ namespace ProductManagment.WebUI.Controllers
             CreateProductModel product;
 
             var categories = await GetCategoriesAsync();
-            var result = await _productService.GetValueById(id);
+            var result = await _apiClient.GetObjectByIdAsync<ProductWithCategoryIdModel>($"api/ProductApi/get/{id}");
 
-            if (result != null)
-            { 
-                product = new CreateProductModel() 
-                { 
-                    Id          = result.Id,
-                    Name        = result.Name,
-                    CategoryId  = result.CategoryId,
-                    Categories  = categories,
-                    Category    = result.Category,
-                    Description = result.Description,
-                    Cost        = result.Cost,
-                    GeneralNote = result.GeneralNote,
-                    SpecialNote = result.SpecialNote,
-                };
-            }
-            else 
-            {
-                product = new CreateProductModel() { Categories = categories };
-            }
+            if (result != null) product = new CreateProductModel(result, categories);
+            else product = new CreateProductModel() { };
 
-            return View("", product);
+            return View("EditProduct", product);
         }
 
         [HttpGet]
         public async Task<IActionResult> Product()
         {
             _logger.LogInformation("Получение продуктов");
-            //var productsDTO = await GetObjectListAsync<ProductDTO>("api/ProductApi");
-
-            return View(await GetProductsAsync());
+            var products = await _apiClient.GetObjectListAsync<ProductModel>("api/ProductApi");
+            return View(products);
         }
 
-        [HttpPost("{id}")]
         [Authorize(Roles = "AdvancedUser,Administrator")]
         public async Task<IActionResult> Delete(int id) 
         {
-            //var response = await _httpClient.DeleteAsync($"api/ProductApi/{id}");
-
-            //var productsDTO = await GetObjectListAsync<ProductDTO>("api/ProductApi");
-            await _productService.Delete(id);
-
-            return View("Product", await GetProductsAsync());
+            await _apiClient.DeleteObject($"api/ProductApi/delete/{id}");
+            return RedirectToAction("Product", "Product");
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> Update([FromBody] ProductModel product)
-        //{
-        //    if (product != null)
-        //    {
-        //        var newProduct = new ProductDTO
-        //        (
-        //            product.Id,
-        //            product.Name,
-        //            product.Category,
-        //            product.Description ?? "",
-        //            product.Cost,
-        //            product.GeneralNote ?? "",
-        //            product.SpecialNote ?? ""
-        //        );
-        //        await _productService.Update(newProduct);
-        //    }
-
-        //    return View("Product");
-        //}
-
-        private async Task<List<CategoryModel>> GetCategoriesAsync() 
-        {
-            var categoriesEntity = await _categoryService.GetAll();
-            return categoriesEntity.Select(c => new CategoryModel() { Id = c.Id, Name = c.Name }).ToList();
-        }
-
-        private async Task<IEnumerable<ProductModel>?> GetProductsAsync() 
-        {
-            var productsDTO = await _productService.GetAll();
-            return productsDTO?
-                .Select(p => new ProductModel(p.Id, p.Name, p.Category, p.Description, p.Cost, p.GeneralNote, p.SpecialNote))
-                .ToList();
-        }
-        //private async Task<IEnumerable<T>?> GetObjectListAsync<T>(string apiController)
-        //{
-        //    var response = await _httpClient.GetAsync(apiController);
-        //    var json = await response.Content.ReadAsStringAsync();
-        //    return JsonSerializer.Deserialize<IEnumerable<T>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        //}
+        private async Task<IEnumerable<CategoryModel>?> GetCategoriesAsync() =>  await _apiClient.GetObjectListAsync<CategoryModel>("api/CategoryApi");
     }
 }

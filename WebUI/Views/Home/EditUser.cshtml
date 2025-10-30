@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    <form method="post" asp-controller="EditUser" asp-action="@(Model.Id == 0 ? "Create" : "Update")">
+    <form method="post" asp-controller="EditUser" asp-action="@(Model.Id == 0 ? "Add" : "Update")">
         <input asp-for="Id" type="hidden" />
         <div>
             <label asp-for="Login">Логин</label>
