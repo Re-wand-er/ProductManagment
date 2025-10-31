@@ -11,16 +11,23 @@ namespace ProductManagment.WebUI.Controllers
     public class EditProductController : Controller
     {
         private readonly ApiClient _apiClient;
-        public EditProductController(ApiClient apiClient) { _apiClient = apiClient; }
+        private readonly ILogger<EditProductController> _logger;
+        public EditProductController(ApiClient apiClient, ILogger<EditProductController> logger)
+        {
+            _apiClient = apiClient;
+            _logger = logger;
+        }
 
         public async Task<IActionResult> Create(CreateProductModel productModel)
         {
+            _logger.LogInformation($"Создание продукта (EditProduct): Name={productModel.Name}, Description={productModel.Description} ,Category={productModel.Category}");
             await SendObjectToAction(productModel, "add");
             return RedirectToAction("Product", "Product");
         }
 
         public async Task<IActionResult> Update(CreateProductModel productModel) 
         {
+            _logger.LogInformation($"Обновление продукта (EditProduct): Name={productModel.Name}, Description={productModel.Description} ,Category={productModel.Category}");
             await SendObjectToAction(productModel, "update");
             return RedirectToAction("Product", "Product");
         }

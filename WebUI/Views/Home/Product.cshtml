@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ProductModel>
+﻿@model ProductCatalogViewModel
 @{
     ViewData["Title"] = "Продукты";
 }
@@ -10,6 +10,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
+
+    <form asp-controller="Product" asp-action="Filter" method="get">
+        <input value="@Model.Search" name="search" placeholder="Поиск продукта:" />
+        <select name="categoryId">
+            <option value="">Все категории</option>
+            @foreach (var c in Model.Categories)
+            {
+                <option value="@c.Id" selected="@(Model.SelectedCategory == c.Id)">@c.Name</option>
+            }
+        </select>
+
+        <select name="sort">
+            <option value="">Без сортировки</option>
+            <option value="name">По имени (возр)</option>
+            <option value="name_desc">По имени (убыв)</option>
+            <option value="description">По описанию (возр)</option>
+            <option value="description_desc">По описанию (убыв)</option>
+            <option value="cost">По стоимости (возр)</option>
+            <option value="cost_desc">По стоимости (убыв)</option>
+            <option value="generalNote">По общему примечанию (возр)</option>
+            <option value="generalNote_desc">По общему примечанию (убыв)</option>
+            @if (User.IsInRole("AdvancedUser") || User.IsInRole("Administrator"))
+            {
+                <option value="specialNote">По специальному примечанию (возр)</option>
+                <option value="specialNote_desc">По специальному примечанию (убыв)</option>
+            }
+        </select>
+
+    <button type="submit" class="btn btn-primary">Фильтр</button>
+    </form>
 
     <form asp-controller="Product" asp-action="Add" method="post">
         <button type="submit">Добавить</button>
@@ -28,7 +58,7 @@
             }
         </tr>
 
-        @foreach (var product in Model)
+        @foreach (var product in Model.Products)
         {
             <tr id="row-@product.Id">
                 <td>@product.Name</td>

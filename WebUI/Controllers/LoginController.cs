@@ -11,9 +11,11 @@ namespace ProductManagment.WebUI.Controllers
     public class LoginController : Controller
     {
         private readonly ApiClient _apiClient;
-        public LoginController(ApiClient apiClient)
+        private readonly ILogger<LoginController> _logger;
+        public LoginController(ApiClient apiClient, ILogger<LoginController> logger)
         {
             _apiClient = apiClient;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -22,10 +24,10 @@ namespace ProductManagment.WebUI.Controllers
         [HttpPost]
         public async Task<ActionResult> Login(LoginModel loginModel) 
         {
+            _logger.LogInformation($"Вход в аккаунт Post api/LoginApi: Login={loginModel.Login}");
             var user = await _apiClient.PostAndReadAsync<LoginWithRoleModel>("api/LoginApi", loginModel);
 
-            // нужно сравнивать user.Password != loginModel.Password
-            if (user == null) // нужна валидация
+            if (user == null)
             {
                 ViewBag.Error = "Неверный логин или пароль!";
                 return View("Login", loginModel);
@@ -48,6 +50,7 @@ namespace ProductManagment.WebUI.Controllers
 
         public async Task<ActionResult> Logout() 
         {
+            _logger.LogInformation($"Выход из аккаунта");
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login", new LoginModel());
         }

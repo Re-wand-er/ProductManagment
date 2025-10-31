@@ -6,6 +6,7 @@ namespace ProductManagment.Application.Interfaces
     {
         Task<IEnumerable<ProductDTO>> GetAll();
         Task<ProductDTO?> GetValueById(int id);
+        Task<IEnumerable<ProductDTO>> GetFilterAllAsync(string? search, int? categoryId, string? sort);
         Task AddAsync(ProductDTO productDTO);
         Task Delete(int id);
         Task Update(ProductDTO productDTO);

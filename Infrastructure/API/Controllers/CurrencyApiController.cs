@@ -10,6 +10,12 @@ namespace ProductManagment.Infrastructure.API.Controllers
     {
         private static decimal? offRate;
         private readonly HttpClient _httpClient = new();
+        private readonly ILogger<CurrencyApiController> _logger;
+
+        public CurrencyApiController(ILogger<CurrencyApiController> logger) 
+        {
+            _logger = logger;
+        }
 
         [HttpGet]
         public async Task<string> Get(decimal value)
@@ -18,6 +24,7 @@ namespace ProductManagment.Infrastructure.API.Controllers
 
             try
             {
+                _logger.LogInformation($"Get /CurrencyApi/Get: Value={value}");
                 var json = await _httpClient.GetStringAsync("https://api.nbrb.by/exrates/rates/431");
 
                 Rate? rate = JsonSerializer.Deserialize<Rate>(json);

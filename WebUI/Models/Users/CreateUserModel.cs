@@ -4,7 +4,7 @@
     {
         public string Password { get; set; } = null!;
         public int SystemRoleId { get; set; }
-        public IEnumerable<RoleModel>? Roles { get; set; }
+        public IEnumerable<RoleModel> Roles { get; set; } = [];
 
         public CreateUserModel() { }
         public CreateUserModel(UserWithPasswordModel user, IEnumerable<RoleModel>? roles) 
@@ -14,7 +14,7 @@
             SystemRoleId = user.SystemRoleId;
             SystemRole = user.SystemRole ?? "";
             Email = user.Email;
-            Roles = roles ?? Enumerable.Empty<RoleModel>();
+            Roles = roles ?? [];
         }
     }
 }

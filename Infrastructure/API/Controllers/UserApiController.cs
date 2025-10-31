@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProductManagment.Application.DTOs;
 using ProductManagment.Application.Interfaces;
+using ProductManagment.WebUI.Models;
 
 namespace ProductManagment.Infrastructure.API.Controllers
 {
@@ -9,9 +10,11 @@ namespace ProductManagment.Infrastructure.API.Controllers
     public class UserApiController : ControllerBase
     {
         private readonly IUserService _userService;
-        public UserApiController(IUserService userService)
+        private readonly ILogger<UserApiController> _logger;
+        public UserApiController(IUserService userService, ILogger<UserApiController> logger)
         {
             _userService = userService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -24,7 +27,8 @@ namespace ProductManagment.Infrastructure.API.Controllers
         [HttpPost("add")]
         public async Task<IActionResult> AddUser([FromBody] UserWithPasswordDTO userModel) 
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState); //_logger
+            _logger.LogInformation($"Post /UserApi/add/AddUser: Login={userModel.Login}, SystemRole={userModel.SystemRole}");
+            if (!ModelState.IsValid) return BadRequest(ModelState); 
 
             await _userService.Add(userModel);
             return Ok(new { success = true });
@@ -34,7 +38,8 @@ namespace ProductManagment.Infrastructure.API.Controllers
         [HttpPost("update")]
         public async Task<IActionResult> UpdateUser([FromBody] UserWithPasswordDTO userModel)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState); // _logger
+            _logger.LogInformation($"Post /UserApi/update/UpdateUser: Login={userModel.Login}, SystemRole={userModel.SystemRole}");
+            if (!ModelState.IsValid) return BadRequest(ModelState); 
 
             await _userService.UpdatePasswordAsync(userModel.Id, userModel.Password);
             return Ok(new { success = true });
@@ -44,6 +49,7 @@ namespace ProductManagment.Infrastructure.API.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
+            _logger.LogInformation($"Delete /UserApi/delete/{id}");
             await _userService.Delete(id);
             return Ok(new { success = true });
         }
@@ -52,6 +58,7 @@ namespace ProductManagment.Infrastructure.API.Controllers
         [HttpPatch("block/{id}")]
         public async Task<IActionResult> BlockUser(int id)
         {
+            _logger.LogInformation($"Post /UserApi/block/{id}");
             await _userService.Block(id);
             return Ok(new { success = true });
         }

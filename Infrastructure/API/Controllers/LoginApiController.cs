@@ -9,12 +9,19 @@ namespace ProductManagment.Infrastructure.API.Controllers
     public class LoginApiController : ControllerBase
     {
         private readonly IUserService _userService;
-        public LoginApiController(IUserService userService) { _userService = userService; }
+        private readonly ILogger<LoginApiController> _logger;
+        public LoginApiController(IUserService userService, ILogger<LoginApiController> logger) 
+        { 
+            _userService = userService;
+            _logger = logger;
+        }
 
         [HttpPost]
         public async Task<IActionResult> ValidateUser(UserLoginPasswordDTO userDTO) 
         {
             var user = await _userService.GetValueByLogin(userDTO.Login); // можно попробовать передавать UserLoginPasswordDTO
+
+            _logger.LogInformation($"Post /LoginApi/ValidateUser: Login={userDTO.Login}");
 
             if (userDTO.Password == null || user == null)
                 return BadRequest(new { message = "Неверный логин или пароль!" });
