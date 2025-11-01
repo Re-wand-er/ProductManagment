@@ -18,34 +18,61 @@ namespace ProductManagment.WebUI.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Create(CreateProductModel productModel)
+        public async Task<IActionResult> Add(CreateProductModel productModel)
         {
             _logger.LogInformation($"Создание продукта (EditProduct): Name={productModel.Name}, Description={productModel.Description} ,Category={productModel.Category}");
-            await SendObjectToAction(productModel, "add");
+
+            var isValid = await ValidateAndSendObjectToAction(productModel, "add");
+            if (!isValid)
+                return View("EditProduct", productModel);
+
             return RedirectToAction("Product", "Product");
         }
 
         public async Task<IActionResult> Update(CreateProductModel productModel) 
         {
             _logger.LogInformation($"Обновление продукта (EditProduct): Name={productModel.Name}, Description={productModel.Description} ,Category={productModel.Category}");
-            await SendObjectToAction(productModel, "update");
+
+            var isValid = await ValidateAndSendObjectToAction(productModel, "update");
+            if (!isValid)
+                return View("EditProduct", productModel);
+
             return RedirectToAction("Product", "Product");
         }
 
-        private async Task SendObjectToAction(CreateProductModel productModel, string action)
+        private async Task<bool> ValidateAndSendObjectToAction(CreateProductModel productModel, string action)
         {
-            var product = new
+            if (!ModelState.IsValid)
             {
-                Id = productModel.Id,
-                Name = productModel.Name,
-                CategoryId = productModel.CategoryId,
-                Category = productModel.Category,
-                Description = productModel.Description,
-                Cost = productModel.Cost,
-                GeneralNote = productModel.GeneralNote,
-                SpecialNote = productModel.SpecialNote
-            };
-            await _apiClient.SendObject($"api/ProductApi/{action}", product);
+                var errors = string.Join("\n", ModelState.Values.SelectMany(e => e.Errors).Select(e => e.ErrorMessage));
+                ViewBag.ErrorProduct = errors;
+
+                productModel.Categories = await _apiClient.GetObjectListAsync<CategoryModel>("api/CategoryApi") ?? [];
+                return false;
+            }
+
+            try
+            {
+                var product = new
+                {
+                    Id = productModel.Id,
+                    Name = productModel.Name,
+                    CategoryId = productModel.CategoryId,
+                    Category = productModel.Category,
+                    Description = productModel.Description,
+                    Cost = productModel.Cost,
+                    GeneralNote = productModel.GeneralNote,
+                    SpecialNote = productModel.SpecialNote
+                };
+                await _apiClient.SendObject($"api/ProductApi/{action}", product);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                productModel.Categories = await _apiClient.GetObjectListAsync<CategoryModel>("api/CategoryApi") ?? [];
+                ViewBag.ErrorProduct = ex.Message;
+                return false;
+            }
         }
     }
 }

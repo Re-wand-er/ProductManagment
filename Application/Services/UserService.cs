@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
 using ProductManagment.Application.DTOs;
 using ProductManagment.Application.Interfaces;
 using ProductManagment.Domain.Entities;
@@ -10,11 +9,13 @@ namespace ProductManagment.Application.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IPasswordHasher<User> _passwordHasher;
         private readonly ILogger<UserService> _logger;
         public UserService(IUserRepository userRepository, ILogger<UserService> logger)
         {
             _userRepository = userRepository;
             _logger = logger;
+            _passwordHasher = new PasswordHasher<User>();
         }
 
         public async Task<IEnumerable<UserDTO>> GetAll()
@@ -45,25 +46,36 @@ namespace ProductManagment.Application.Services
             _logger.LogInformation($"Получение пользователя по логину: {login}");
 
             var entity = await _userRepository.GetUserByLogin(login);
-            // ВАЛИДАЦИЯ
             if (entity == null) { return null; }
 
             var user = new UserDTO(entity.Id, entity.Login, entity.Role.Name, entity.Email, entity.IsBlocked);
             return user;
         }
 
+        public async Task<bool> CheckPasswordAsync(string login, string password)
+        {
+            var user = await _userRepository.GetUserByLogin(login);
+            if (user == null) return false;
+
+            var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
+            return result == PasswordVerificationResult.Success;
+        }
+
         public async Task Add(UserWithPasswordDTO userDTO) 
         {
-            _logger.LogInformation($"Добавление пользователя: {userDTO.Login}; {userDTO.Email}");
+            _logger.LogInformation($"Добавление пользователя: Login={userDTO.Login}; RoleId={userDTO.SystemRoleId}; Email={userDTO.Email}");
+
+            await ExistFields(userDTO.Login, userDTO.Email);
 
             var user = new User()
             {
                 Login = userDTO.Login,
                 RoleId = userDTO.SystemRoleId,
                 Email = userDTO.Email,
-                PasswordHash = userDTO.Password
+                IsBlocked = false
             };
-            // Проверка на валидацию/ошибки и т.д.
+            user.PasswordHash = _passwordHasher.HashPassword(user, userDTO.Password);
+
             await _userRepository.AddAsync(user);
             await _userRepository.SaveChangesAsync();
         }
@@ -84,7 +96,7 @@ namespace ProductManagment.Application.Services
         {
             _logger.LogInformation($"Удаление пользователя под id: {id}");
 
-            var entity = _userRepository.DeleteAsync(id);
+            await _userRepository.DeleteAsync(id);
             await _userRepository.SaveChangesAsync();
         }
 
@@ -100,6 +112,14 @@ namespace ProductManagment.Application.Services
                 _userRepository.UpdateAsync(entity);
                 await _userRepository.SaveChangesAsync();
             }
+        }
+
+        private async Task ExistFields(string login, string email) 
+        {
+            var errors = new List<string>();
+            if (await _userRepository.ExistByLoginAsync(login)) errors.Add($"Пользователь с логином \"{login}\" уже существует.");
+            if (await _userRepository.ExistByEmailAsync(email)) errors.Add($"Пользователь с почтой \"{email}\" уже существует.");
+            if (errors.Any()) throw new InvalidOperationException(string.Join(" ", errors));
         }
     }
 }

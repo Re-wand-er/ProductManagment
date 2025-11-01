@@ -8,5 +8,7 @@ namespace ProductManagment.Application.Interfaces
         Task Delete(int id);
 
         Task Add(string category);
+
+        Task Update(CategoryDTO categoryDTO);
     }
 }

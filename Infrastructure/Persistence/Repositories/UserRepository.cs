@@ -30,5 +30,16 @@ namespace ProductManagment.Infrastructure.Persistence.Repositories
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(p => p.Login == login);
         }
+
+        public async Task<bool> ExistByLoginAsync(string login) 
+        {
+            return await _dbSet
+                .AnyAsync(u => u.Login.ToLower() == login.ToLower());    
+        }
+        public async Task<bool> ExistByEmailAsync(string email) 
+        {
+            return await _dbSet
+                .AnyAsync(u => u.Email.ToLower() == email.ToLower());
+        }
     }
 }

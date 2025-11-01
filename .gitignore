@@ -2,5 +2,6 @@
 /bin
 /obj
 /log
+/Properties
 /wwwroot/lib/*
 /*.json

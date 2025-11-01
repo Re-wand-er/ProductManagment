@@ -48,6 +48,11 @@
 
         <button class="btn btn-success">Сохранить</button>
     </form>
+
+    @if (ViewBag.ErrorUser != null)
+    {
+        <div style="color:red">@ViewBag.ErrorUser</div>
+    }
 </body>
 </html>
 

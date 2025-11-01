@@ -5,5 +5,6 @@ namespace ProductManagment.Domain.Interfaces
 {
     public interface ICategoryRepository : IBaseRepository<Category>
     {
+        Task<bool> ExistByNameAsync(string category);
     }
 }

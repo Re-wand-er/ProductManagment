@@ -18,6 +18,12 @@
 
         <button type="submit">Добавить</button>
     </form>
+
+    @if (ViewBag.ErrorCategory != null)
+    {
+        <div style="color:red">@ViewBag.ErrorCategory</div>
+    }
+
     <table>
         <tr>
             <th width="15">Категория</th>
@@ -26,13 +32,9 @@
         @foreach (var category in Model.categoryModels!)
         {
             <tr>
-                <td>@category.Name</td>
+                <td class="category-name">@category.Name</td>
                 <td class="action-buttons">
-
-                    <form asp-controller="Category" asp-action="Edit" asp-route-id="@category.Id" method="post">
-                        <button type="submit">Редактировать</button>
-                    </form>
-
+                    <button type="button" value="@category.Id" onclick="editRow(this)">Изменить</button>
                     <form asp-controller="Category" asp-action="Delete" asp-route-id="@category.Id" method="post">
                         <button type="submit">Удалить</button>
                     </form>
@@ -42,3 +44,60 @@
     </table>
 </body>
 </html>
+<script>
+function editRow(button) {
+    const row = button.closest('tr');
+    const cell = row.querySelector('td.category-name');
+    const currentValue = cell.textContent.trim();
+
+    const inputElement = document.createElement('input');
+    inputElement.type = 'text';
+    inputElement.value = currentValue;
+    inputElement.defaultValue = currentValue;
+
+    cell.innerHTML = '';
+    cell.appendChild(inputElement);
+
+    button.textContent = "Сохранить";
+    button.onclick = () => saveRow(button);
+}
+
+function saveRow(button) {
+    const row = button.closest('tr');
+    const id = button.value;
+    const cell = row.querySelector('td.category-name');
+    const input = cell.querySelector('input');
+    const newCategoryName = input.value.trim();
+
+    fetch('/api/CategoryApi/update', {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            Id: id,
+            Name: newCategoryName
+        })
+    })
+    .then(async response => {
+        if (!response.ok) {
+            // Считываем текст ошибки от сервера
+            const text = await response.text();
+            throw new Error(text || "Ошибка обновления категории.");
+        }
+        return response.json().catch(() => ({})); // Если пустой ответ
+    })
+    .then(() => {
+        cell.textContent = newCategoryName;
+        button.textContent = "Изменить";
+        button.onclick = () => editRow(button);
+    })
+    .catch(error => {
+        alert(error.message);
+        cell.textContent = input.defaultValue;
+        button.textContent = "Изменить";
+        button.onclick = () => editRow(button);
+    });
+}
+</script>
+

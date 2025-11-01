@@ -18,10 +18,9 @@ namespace ProductManagment.WebUI.Contracts
         {
             using var response = await _httpClient.GetAsync(apiController);
             _logger.LogInformation($"Статус от API при получении всех объектов по пути {apiController}:{response.StatusCode}");
+            var json = await response.Content.ReadAsStringAsync();
 
             response.EnsureSuccessStatusCode();
-
-            var json = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<IEnumerable<T>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
 
@@ -47,11 +46,14 @@ namespace ProductManagment.WebUI.Contracts
             return JsonSerializer.Deserialize<IEnumerable<T>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
         }
 
-        public async Task SendObject<T>(string apiController, T obj) 
+        public async Task<string?> SendObject<T>(string apiController, T obj) 
         {
             using var response = await _httpClient.PostAsJsonAsync(apiController, obj);
             _logger.LogInformation($"Статус отправленного Post-запроса от API: {response.StatusCode}");
-            response.EnsureSuccessStatusCode();
+
+            if(!response.IsSuccessStatusCode) return await response.Content.ReadAsStringAsync();
+
+            return null;
         }
 
         public async Task<T?> PostAndReadAsync<T>(string apiController, object obj)
@@ -60,10 +62,14 @@ namespace ProductManagment.WebUI.Contracts
             _logger.LogInformation($"Статус от API при Post-запросе по пути {apiController}:{response.StatusCode}");
 
             if (!response.IsSuccessStatusCode)
-                return default;
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning($"Ошибка API: {error}");
+                return default; // null для ссылочных типов
+            }
 
-            var body = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<T>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var result = await response.Content.ReadFromJsonAsync<T>();
+            return result;
         }
 
         public async Task DeleteObject(string apiController) 

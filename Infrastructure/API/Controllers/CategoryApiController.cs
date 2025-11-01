@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProductManagment.Application.DTOs;
 using ProductManagment.Application.Interfaces;
-using ProductManagment.Application.Services;
-using ProductManagment.WebUI.Contracts;
-using ProductManagment.WebUI.Models;
 
 namespace ProductManagment.Infrastructure.API.Controllers
 {
@@ -35,10 +32,40 @@ namespace ProductManagment.Infrastructure.API.Controllers
         public async Task<IActionResult> AddCategory([FromBody] string category) 
         {
             _logger.LogInformation($"Post /CategoryApi/add/{category}");
-            if (!ModelState.IsValid) return BadRequest(ModelState); //_logger
+            try
+            {
+                await _categoryService.Add(category);
+                return Ok(new { success = true });
+            }
+            catch (InvalidOperationException ex) 
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Post /CategoryApi/add/{category} {ex.Message}");
+                return BadRequest();
+            }
+        }
 
-            await _categoryService.Add(category);
-            return Ok(new { success = true });
+        [HttpPost("update")]
+        public async Task<IActionResult> UpdateCategory([FromBody] CategoryDTO category)
+        {
+            _logger.LogInformation($"Post /CategoryApi/update/{category}");
+            try
+            {
+                await _categoryService.Update(category);
+                return Ok(new { success = true });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError($"Post /CategoryApi/update/{category} {ex.Message}");
+                return BadRequest();
+            }
         }
     }
 }

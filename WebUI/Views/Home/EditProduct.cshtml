@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    <form method="post" asp-controller="EditProduct" asp-action="@(Model.Id == 0 ? "Create" : "Update")">
+    <form method="post" asp-controller="EditProduct" asp-action="@(Model.Id == 0 ? "Add" : "Update")">
         <input asp-for="Id" type="hidden" />
         <div>
             <label asp-for="Name">Название продукта</label>
@@ -28,7 +28,7 @@
         </div>
         <div>
             <label asp-for="Cost">Стоимость</label>
-            <input asp-for="Cost" type="number" class="form-control" required/>
+            <input asp-for="Cost" type="number" step="0.001" class="form-control" required/>
         </div>
         <div>
             <label asp-for="GeneralNote">Примечание общее</label>
@@ -41,6 +41,11 @@
 
         <button class="btn btn-success">Сохранить</button>
     </form>
+
+    @if (ViewBag.ErrorProduct != null)
+    {
+        <div style="color:red">@ViewBag.ErrorProduct</div>
+    }
 </body>
 </html>
 

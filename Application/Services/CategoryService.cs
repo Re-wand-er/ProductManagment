@@ -34,13 +34,40 @@ namespace ProductManagment.Application.Services
             if (category == "") return;
             _logger.LogInformation($"Добавление категории: {category}");
 
+            if(await _categoryRepository.ExistByNameAsync(category)) 
+            {
+                throw new InvalidOperationException($"Не удалось добавить новую категорию. Категория {category} уже существует.");
+            }
+
             var categoryEntity = new Category()
             {
                 Name = category
             };
+
             await _categoryRepository.AddAsync(categoryEntity);
             await _categoryRepository.SaveChangesAsync();
         }
+
+        public async Task Update(CategoryDTO categoryDTO) 
+        {
+            if (categoryDTO.Name == "") return;
+            _logger.LogInformation($"Обновление категории с id: {categoryDTO.Id}");
+
+            if (await _categoryRepository.ExistByNameAsync(categoryDTO.Name))
+            {
+                throw new InvalidOperationException($"Не удалось обновить категорию. Категория {categoryDTO.Name} уже существует.");
+            }
+
+            var category = new Category()
+            {
+                Id = categoryDTO.Id,
+                Name = categoryDTO.Name
+            };
+
+            _categoryRepository.UpdateAsync(category);
+            await _categoryRepository.SaveChangesAsync();
+        }
+
         public async Task Delete(int id) 
         { 
             _logger.LogInformation($"Удаление категории с id: {id}");

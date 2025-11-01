@@ -22,14 +22,20 @@ namespace ProductManagment.WebUI.Controllers
         public ActionResult Login() => View("Login");
 
         [HttpPost]
-        public async Task<ActionResult> Login(LoginModel loginModel) 
+        public async Task<ActionResult> Login(LoginWithRoleModel loginModel) 
         {
             _logger.LogInformation($"Вход в аккаунт Post api/LoginApi: Login={loginModel.Login}");
             var user = await _apiClient.PostAndReadAsync<LoginWithRoleModel>("api/LoginApi", loginModel);
 
-            if (user == null)
+            if (!ModelState.IsValid || user == null)
             {
                 ViewBag.Error = "Неверный логин или пароль!";
+                return View("Login", loginModel);
+            }
+
+            if (user.IsBlocked)
+            {
+                ViewBag.Error = "Вы были заблокированы! Доступ к ресурсам запрещен!";
                 return View("Login", loginModel);
             }
 
@@ -52,7 +58,7 @@ namespace ProductManagment.WebUI.Controllers
         {
             _logger.LogInformation($"Выход из аккаунта");
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Login", new LoginModel());
+            return RedirectToAction("Login", new LoginWithRoleModel());
         }
     }
 }

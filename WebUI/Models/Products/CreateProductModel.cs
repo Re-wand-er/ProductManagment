@@ -1,8 +1,12 @@
-﻿namespace ProductManagment.WebUI.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ProductManagment.WebUI.Models
 {
     public class CreateProductModel : ProductModel
     {
+        [Required(ErrorMessage = "Категория обязательна.")]
         public int CategoryId { get; set; }
+
         public IEnumerable<CategoryModel> Categories { get; set; } = [];
 
         public CreateProductModel() { }

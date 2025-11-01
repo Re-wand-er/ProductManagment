@@ -36,9 +36,23 @@ namespace ProductManagment.WebUI.Controllers
         public async Task<IActionResult> Add(CategoryViewModel model) 
         {
             _logger.LogInformation($"Добавление категории к api: Post api/CategoryApi/add");
-            if (string.IsNullOrWhiteSpace(model.Category)) return View("Category", model);
 
-            await _apiClient.SendObject("api/CategoryApi/add", model.Category);
+            if (!ModelState.IsValid)
+            {
+                ViewBag.ErrorCategory = "Категория не может быть пустой!";
+                model.categoryModels = await _apiClient.GetObjectListAsync<CategoryModel>("api/CategoryApi") ?? [];
+                return View("Category", model);
+            }
+
+            var response = await _apiClient.SendObject("api/CategoryApi/add", model.Category);
+
+            if (!string.IsNullOrWhiteSpace(response))
+            {
+                ViewBag.ErrorCategory = response;
+                model.categoryModels = await _apiClient.GetObjectListAsync<CategoryModel>("api/CategoryApi") ?? [];
+                return View("Category", model);
+            }
+
             return RedirectToAction("Category", "Category");
         }
     }

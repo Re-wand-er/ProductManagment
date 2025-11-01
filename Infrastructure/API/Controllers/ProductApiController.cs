@@ -25,7 +25,7 @@ namespace ProductManagment.Infrastructure.API.Controllers
         public async Task<IActionResult> GetProduct(int id) => Ok(await _productService.GetValueById(id));
 
         [HttpGet("get/")]
-        public async Task<IActionResult> GetAll([FromQuery] string? search, [FromQuery] int? categoryId, [FromQuery] string? sort)
+        public async Task<IActionResult> GetFilterAll([FromQuery] string? search, [FromQuery] int? categoryId, [FromQuery] string? sort)
         {
             _logger.LogInformation($"Get /ProductApi/get/ GetAll: search={search}, categoryId={categoryId}, sort={sort}");
             var products = await _productService.GetFilterAllAsync(search, categoryId, sort);

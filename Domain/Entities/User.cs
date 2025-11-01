@@ -7,7 +7,7 @@
         public string Login { get; set; } = null!;
         public string PasswordHash { get; set; } = null!;
         public string Email { get; set; } = null!;
-        public bool IsBlocked { get; set; } 
+        public bool IsBlocked { get; set; }
 
         public Role Role { get; set; } = null!;
     }
