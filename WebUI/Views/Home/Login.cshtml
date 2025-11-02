@@ -12,7 +12,7 @@
         <input asp-for="Password" class="form-control" autocomplete="new-password" required />
     </div>
 
-    <button type="submit" asp-controller="Login" asp-action="Login">Войти</button>
+    <button type="submit" class="btn btn-success" asp-controller="Login" asp-action="Login">Войти</button>
 </form>
 @if (ViewBag.Error != null)
 {

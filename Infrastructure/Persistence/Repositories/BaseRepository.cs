@@ -34,7 +34,7 @@ namespace ProductManagment.Infrastructure.Persistence.Repositories
             await _dbSet.AddAsync(entity);
         }
 
-        public virtual void UpdateAsync(T entity) 
+        public virtual void Update(T entity) 
         {
             _dbSet.Update(entity);
         }

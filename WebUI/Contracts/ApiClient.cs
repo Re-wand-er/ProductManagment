@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using ProductManagment.WebUI.Contracts.ErrorModels;
+using System;
+using System.Text;
 using System.Text.Json;
 
 namespace ProductManagment.WebUI.Contracts
@@ -16,34 +18,20 @@ namespace ProductManagment.WebUI.Contracts
 
         public async Task<IEnumerable<T>?> GetObjectListAsync<T>(string apiController)
         {
-            using var response = await _httpClient.GetAsync(apiController);
-            _logger.LogInformation($"Статус от API при получении всех объектов по пути {apiController}:{response.StatusCode}");
-            var json = await response.Content.ReadAsStringAsync();
-
-            response.EnsureSuccessStatusCode();
-            return JsonSerializer.Deserialize<IEnumerable<T>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            _logger.LogInformation($"Статус от API при получении всех объектов по пути {apiController}");
+            return await GetObjectAndResultAsync<IEnumerable<T>>(apiController);
         }
 
         public async Task<T?> GetObjectByIdAsync<T>(string apiController)
         {
-            using var response = await _httpClient.GetAsync(apiController);
-            _logger.LogInformation($"Статус от API при получении одного объекта по пути {apiController}:{response.StatusCode}");
-
-            response.EnsureSuccessStatusCode();
-
-            var json = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<T>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            _logger.LogInformation($"Статус от API при получении одного объекта по пути {apiController}");
+            return await GetObjectAndResultAsync<T>(apiController);
         }
 
         public async Task<IEnumerable<T>?> GetFilterObjectAsync<T>(string url)
-        {
-            var response = await _httpClient.GetAsync(url);
-            _logger.LogInformation($"Статус от API при фильтрации всех объектов по пути {url}:{response.StatusCode}");
-
-            response.EnsureSuccessStatusCode();
-
-            var json = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<IEnumerable<T>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        { 
+            _logger.LogInformation($"Статус от API при фильтрации всех объектов по пути {url}");
+            return await GetObjectAndResultAsync<IEnumerable<T>>(url);
         }
 
         public async Task<string?> SendObject<T>(string apiController, T obj) 
@@ -56,27 +44,31 @@ namespace ProductManagment.WebUI.Contracts
             return null;
         }
 
-        public async Task<T?> PostAndReadAsync<T>(string apiController, object obj)
+        public async Task<ApiResultResponse<T>> PostAndReadAsync<T>(string apiController, object obj)
         {
             using var response = await _httpClient.PostAsJsonAsync(apiController, obj);
             _logger.LogInformation($"Статус от API при Post-запросе по пути {apiController}:{response.StatusCode}");
 
+            var apiResponse = new ApiResultResponse<T>();
+
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
+                apiResponse.ErrorMessage = error;
+
                 _logger.LogWarning($"Ошибка API: {error}");
-                return default; // null для ссылочных типов
+                return apiResponse; // null для ссылочных типов
             }
 
-            var result = await response.Content.ReadFromJsonAsync<T>();
-            return result;
+            apiResponse.Value = await response.Content.ReadFromJsonAsync<T>();
+            return apiResponse;
         }
 
         public async Task DeleteObject(string apiController) 
         {
             using var response = await _httpClient.DeleteAsync(apiController);
             _logger.LogInformation($"Статус от APi при Delete-запросе по пути {apiController}: {response.StatusCode}");
-            response.EnsureSuccessStatusCode();
+            //response.EnsureSuccessStatusCode();
         }
 
         public async Task PatchObjectById(string apiController)
@@ -85,8 +77,20 @@ namespace ProductManagment.WebUI.Contracts
             using var response = await _httpClient.SendAsync(request);
 
             _logger.LogInformation($"Статус от APi при Patch-запросе по пути {apiController}: {response.StatusCode}");
-            response.EnsureSuccessStatusCode();
+            //response.EnsureSuccessStatusCode();
         }
 
+        // Private 
+        //------------------------------------------------------------------------------------------------------------
+        private async Task<T?> GetObjectAndResultAsync<T>(string apiController) 
+        {
+            using var response = await _httpClient.GetAsync(apiController);
+            var json = await response.Content.ReadAsStringAsync();
+
+            _logger.LogInformation($"Статус от API: {response.StatusCode}");
+
+            //response.EnsureSuccessStatusCode();
+            return JsonSerializer.Deserialize<T>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
     }
 }

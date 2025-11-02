@@ -42,7 +42,7 @@
     </form>
 
     <form asp-controller="Product" asp-action="Add" method="post">
-        <button type="submit">Добавить</button>
+        <button type="submit" class="btn btn-success">Добавить</button>
     </form>
 
     <table>
@@ -76,7 +76,7 @@
                 <td class="action-buttons">
 
                     <form asp-controller="Product" asp-action="Edit" asp-route-id="@product.Id" method="post">
-                        <button type="submit">Редактировать</button>
+                        <button type="submit" class="btn btn-warning">Редактировать</button>
                     </form>
 
                     @if (User.IsInRole("AdvancedUser") || User.IsInRole("Administrator"))

@@ -51,7 +51,7 @@ namespace ProductManagment.Infrastructure.API.Controllers
         [HttpPost("update")]
         public async Task<IActionResult> UpdateCategory([FromBody] CategoryDTO category)
         {
-            _logger.LogInformation($"Post /CategoryApi/update/{category}");
+            _logger.LogInformation("Post /CategoryApi/update/{@category}", category);
             try
             {
                 await _categoryService.Update(category);
@@ -63,7 +63,7 @@ namespace ProductManagment.Infrastructure.API.Controllers
             }
             catch (Exception ex) 
             {
-                _logger.LogError($"Post /CategoryApi/update/{category} {ex.Message}");
+                _logger.LogError("Post /CategoryApi/update/{@category} {Message}", category, ex.Message);
                 return BadRequest();
             }
         }

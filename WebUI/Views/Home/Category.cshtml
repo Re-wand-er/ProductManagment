@@ -16,7 +16,7 @@
             <input asp-for="Category" class="form-control" required />
         </div>
 
-        <button type="submit">Добавить</button>
+        <button type="submit" class="btn btn-success">Добавить</button>
     </form>
 
     @if (ViewBag.ErrorCategory != null)
@@ -34,9 +34,9 @@
             <tr>
                 <td class="category-name">@category.Name</td>
                 <td class="action-buttons">
-                    <button type="button" value="@category.Id" onclick="editRow(this)">Изменить</button>
+                    <button type="button" class="btn btn-warning" value="@category.Id" onclick="editRow(this)">Изменить</button>
                     <form asp-controller="Category" asp-action="Delete" asp-route-id="@category.Id" method="post">
-                        <button type="submit">Удалить</button>
+                        <button type="submit" class="btn btn-danger">Удалить</button>
                     </form>
                 </td>
             </tr>

@@ -27,21 +27,22 @@ namespace ProductManagment.WebUI.Controllers
             _logger.LogInformation($"Вход в аккаунт Post api/LoginApi: Login={loginModel.Login}");
             var user = await _apiClient.PostAndReadAsync<LoginWithRoleModel>("api/LoginApi", loginModel);
 
-            if (!ModelState.IsValid || user == null)
+            if (!ModelState.IsValid)
             {
                 ViewBag.Error = "Неверный логин или пароль!";
                 return View("Login", loginModel);
             }
 
-            if (user.IsBlocked)
+            if (user.Value == null) 
             {
-                ViewBag.Error = "Вы были заблокированы! Доступ к ресурсам запрещен!";
+                ViewBag.Error = user.ErrorMessage;
                 return View("Login", loginModel);
             }
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Role, user.SystemRole ?? "")
+                new Claim(ClaimTypes.Name, user.Value.Login ?? ""),
+                new Claim(ClaimTypes.Role, user.Value.SystemRole ?? "")
             };
 
             var authentication = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

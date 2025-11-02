@@ -34,10 +34,13 @@
             <label asp-for="GeneralNote">Примечание общее</label>
             <input asp-for="GeneralNote" class="form-control" />
         </div>
-        <div>
-            <label asp-for="SpecialNote">Примечание специальное</label>
-            <input asp-for="SpecialNote" class="form-control" />
-        </div>
+        @if (User.IsInRole("AdvancedUser") || User.IsInRole("Administrator"))
+        {
+            <div>
+                <label asp-for="SpecialNote">Примечание специальное</label>
+                <input asp-for="SpecialNote" class="form-control" />
+            </div>
+        }
 
         <button class="btn btn-success">Сохранить</button>
     </form>

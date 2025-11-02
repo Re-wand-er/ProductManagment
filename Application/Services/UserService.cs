@@ -3,6 +3,7 @@ using ProductManagment.Application.DTOs;
 using ProductManagment.Application.Interfaces;
 using ProductManagment.Domain.Entities;
 using ProductManagment.Domain.Interfaces;
+using Serilog;
 
 namespace ProductManagment.Application.Services
 {
@@ -52,6 +53,23 @@ namespace ProductManagment.Application.Services
             return user;
         }
 
+        public async Task<UserDTO> ValidateUser(UserLoginPasswordDTO userDTO) 
+        {
+            var user = await _userRepository.GetUserByLogin(userDTO.Login);
+
+            if (user == null)
+                throw new InvalidOperationException("Неверный логин или пароль!");
+
+            var isValid = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, userDTO.Password ?? "");
+            if (isValid == 0) // 0 - Failed
+                throw new InvalidOperationException("Неверный логин или пароль!");
+
+            if (user.IsBlocked)
+                throw new InvalidOperationException("Пользователь заблокирован!");
+
+            return new UserDTO(user.Id, user.Login, user.Role.Name, user.Email, user.IsBlocked);
+        }
+
         public async Task<bool> CheckPasswordAsync(string login, string password)
         {
             var user = await _userRepository.GetUserByLogin(login);
@@ -87,8 +105,9 @@ namespace ProductManagment.Application.Services
             var user = await _userRepository.GetByIdAsync(id);
             if (user == null) return;
 
-            user.PasswordHash = newPassword; // HashPassword() хэширование пароля
-            _userRepository.UpdateAsync(user);
+            user.PasswordHash = _passwordHasher.HashPassword(user, newPassword);
+
+            _userRepository.Update(user);
             await _userRepository.SaveChangesAsync();
         }
 
@@ -109,7 +128,7 @@ namespace ProductManagment.Application.Services
             if (entity != null) 
             { 
                 entity.IsBlocked = !entity.IsBlocked; 
-                _userRepository.UpdateAsync(entity);
+                _userRepository.Update(entity);
                 await _userRepository.SaveChangesAsync();
             }
         }

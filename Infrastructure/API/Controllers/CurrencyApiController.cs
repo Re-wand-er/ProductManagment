@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProductManagment.Application.Interfaces;
 using ProductManagment.Infrastructure.API.Models;
 using System.Text.Json;
 
@@ -8,37 +9,21 @@ namespace ProductManagment.Infrastructure.API.Controllers
     [Route("api/[controller]")]
     public class CurrencyApiController : ControllerBase
     {
-        private static decimal? offRate;
-        private readonly HttpClient _httpClient = new();
+        private readonly ICurrencyService _currencyService;
         private readonly ILogger<CurrencyApiController> _logger;
 
-        public CurrencyApiController(ILogger<CurrencyApiController> logger) 
+        public CurrencyApiController(ICurrencyService currencyService, ILogger<CurrencyApiController> logger) 
         {
+            _currencyService = currencyService;
             _logger = logger;
         }
 
         [HttpGet]
         public async Task<string> Get(decimal value)
         {
-            if (value == 0) return "0.000";
-
-            try
-            {
-                _logger.LogInformation($"Get /CurrencyApi/Get: Value={value}");
-                var json = await _httpClient.GetStringAsync("https://api.nbrb.by/exrates/rates/431");
-
-                Rate? rate = JsonSerializer.Deserialize<Rate>(json);
-                offRate = rate?.Cur_OfficialRate;
-
-                if (offRate == null) return "0.000";
-                if (offRate == 0) return "0.000";
-                else
-                {
-                    var usd = (value / offRate).ToString()!;
-                    return usd;
-                }
-            }
-            catch (Exception) { return "0.000"; }
+            _logger.LogInformation($"Get /CurrencyApi/Get: Value={value}");
+            var convert = await _currencyService.ConvertToUsd(value);
+            return convert.ToString("F3"); // 1234.000
         }
     }
 }

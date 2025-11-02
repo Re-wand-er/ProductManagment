@@ -64,7 +64,7 @@ namespace ProductManagment.Application.Services
                 Name = categoryDTO.Name
             };
 
-            _categoryRepository.UpdateAsync(category);
+            _categoryRepository.Update(category);
             await _categoryRepository.SaveChangesAsync();
         }
 

@@ -64,7 +64,7 @@ namespace ProductManagment.Application.Services
                 "generalNote_desc"  => product.OrderByDescending(p => p.GeneralNote),
                 "specialNote"       => product.OrderBy(p => p.SpecialNote),
                 "specialNote_desc"  => product.OrderByDescending(p => p.SpecialNote),
-                _ => product.OrderBy(p => p.Name)
+                _ => product
             };
 
             return product.ToList();
@@ -103,7 +103,7 @@ namespace ProductManagment.Application.Services
                 SpecialNote = productDTO.SpecialNote
             };
 
-            _productRepository.UpdateAsync(product);
+            _productRepository.Update(product);
             await _productRepository.SaveChangesAsync();
         }
 

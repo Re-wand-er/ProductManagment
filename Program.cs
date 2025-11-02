@@ -9,6 +9,7 @@ using ProductManagment.Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using ProductManagment.Application.Interfaces;
 using ProductManagment.WebUI.Contracts;
+using ProductManagment.Infrastructure;
 
 namespace ProductManagment
 {
@@ -18,7 +19,7 @@ namespace ProductManagment
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // логгирование с использованием serilog
+            // Логгирование с использованием serilog
             //------------------------------------------------------------------------------------------------------------
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
@@ -75,6 +76,15 @@ namespace ProductManagment
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IRoleService, RoleService>();
+
+            // Для работы с внешними api (в нашем случае НацБанк) используются методы и классы 
+            // из слоя взаимодействия с внешними сервисами (Infrastructure).
+            // Созданы ICurrencyProvaider и CurrencyProvider.
+            // Первый служит как интерфейс для реализации получения данных с api (он находится в слои бизнес-логики - Application)
+            // Второй же является реализацией его в слое взаимодействия с внешними сервисами.
+            // Благодаря интерфейсу можем подставлять необходимую реализацию таким образом, что Application не знает о конкретном классе Infrastructure
+            builder.Services.AddScoped<ICurrencyProvider, CurrencyProvider>();
+            builder.Services.AddScoped<ICurrencyService, CurrencyService>(); // Класс для взаимодействия в ApiController
             //------------------------------------------------------------------------------------------------------------
 
             // Add services to the container.
@@ -86,7 +96,8 @@ namespace ProductManagment
             {
                 client.BaseAddress = new Uri("https://localhost:7248/"); 
             });
-            builder.Services.AddScoped<ApiClient>(); // Для отправки json
+            // Для отправки json
+            builder.Services.AddScoped<ApiClient>(); // Возможно тоже правильно иметь интерфейс на подобии IApiClient?
             //------------------------------------------------------------------------------------------------------------
 
 
