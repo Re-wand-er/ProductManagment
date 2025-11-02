@@ -16,9 +16,6 @@ values(N'SimpleUser'),(N'AdvancedUser'),(N'administrator')
 select * from Roles
 
 insert into Users (RoleId, Login, PasswordHash, Email)
-values 
-(1, N'Простой Пользователь1', N'Простой Пользователь', N'prostpolz1@example.com'),  
-(2, N'Продвинутый Пользователь1', N'Продвинутый Пользователь', N'prodvpolz1@example.com'), 
-(1, N'Простой Пользователь2', N'Простой Пользователь', N'prostpolz2@example.com'),    
-(3, N'Администратор', N'Администратор', N'admin@example.com'),   
-(2, N'Продвинутый Пользователь', N'Продвинутый Пользователь', N'prodvpolz2@example.com'); 
+values     
+(3, N'Администратор', N'AQAAAAIAAYagAAAAEOGgQcJz5m1fovlq5QUWpg87sAHDbX3iRYSNw41TQ1jOwyd5OgZKFFaflR/CTzxqNA==', N'admin@example.com');  
+
