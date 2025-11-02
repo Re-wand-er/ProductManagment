@@ -12,6 +12,7 @@ namespace ProductManagment.Infrastructure.Persistence.Repositories
         public override async Task<IEnumerable<Product>> GetAllAsync() 
         {
             return await _dbSet
+                .AsNoTracking()
                 .Include(p => p.Category)
                 .ToListAsync();
         }
@@ -22,6 +23,15 @@ namespace ProductManagment.Infrastructure.Persistence.Repositories
                 .AsNoTracking()
                 .Include(p => p.Category)
                 .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public IQueryable<Product> GetAllQuerable()
+        {
+            IQueryable<Product> products = _dbSet;
+
+            return products
+                .AsNoTracking()
+                .Include(p => p.Category);
         }
     }
 }

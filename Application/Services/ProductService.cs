@@ -2,7 +2,7 @@
 using ProductManagment.Application.DTOs;
 using ProductManagment.Domain.Entities;
 using ProductManagment.Application.Interfaces;
-using ProductManagment.WebUI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ProductManagment.Application.Services
 {
@@ -42,32 +42,34 @@ namespace ProductManagment.Application.Services
         public async Task<IEnumerable<ProductDTO>> GetFilterAllAsync(string? search, int? categoryId, string? sort) 
         {
             _logger.LogInformation($"Фильтрация продуктов по поиску:{search}; Id категории: {categoryId}; сортировке: {sort}");
-            var productEntities = await _productRepository.GetAllAsync();
-            var product = productEntities
-                .Select(p => new ProductDTO(p.Id, p.Name, p.CategoryId, p.Category.Name, p.Description, p.Cost, p?.GeneralNote ?? "", p?.SpecialNote ?? ""));
-
+            var productQuery = _productRepository.GetAllQuerable();
+            
             if (!string.IsNullOrWhiteSpace(search))
-                product = product.Where(p => p.Name.Contains(search, StringComparison.OrdinalIgnoreCase));
+                productQuery = productQuery.Where(p => p.Name.Contains(search, StringComparison.OrdinalIgnoreCase));
 
             if (categoryId.HasValue)
-                product = product.Where(p => p.CategoryId == categoryId);
+                productQuery = productQuery.Where(p => p.CategoryId == categoryId);
 
-            product = sort switch
+            productQuery = sort switch
             {
-                "name"              => product.OrderBy(p => p.Name),
-                "name_desc"         => product.OrderByDescending(p => p.Name),
-                "description"       => product.OrderBy(p => p.Description),
-                "description_desc"  => product.OrderByDescending(p => p.Description),
-                "cost"              => product.OrderBy(p => p.Cost),
-                "cost_desc"         => product.OrderByDescending(p => p.Cost),
-                "generalNote"       => product.OrderBy(p => p.GeneralNote),
-                "generalNote_desc"  => product.OrderByDescending(p => p.GeneralNote),
-                "specialNote"       => product.OrderBy(p => p.SpecialNote),
-                "specialNote_desc"  => product.OrderByDescending(p => p.SpecialNote),
-                _ => product
+                "name"              => productQuery.OrderBy(p => p.Name),
+                "name_desc"         => productQuery.OrderByDescending(p => p.Name),
+                "description"       => productQuery.OrderBy(p => p.Description),
+                "description_desc"  => productQuery.OrderByDescending(p => p.Description),
+                "cost"              => productQuery.OrderBy(p => p.Cost),
+                "cost_desc"         => productQuery.OrderByDescending(p => p.Cost),
+                "generalNote"       => productQuery.OrderBy(p => p.GeneralNote),
+                "generalNote_desc"  => productQuery.OrderByDescending(p => p.GeneralNote),
+                "specialNote"       => productQuery.OrderBy(p => p.SpecialNote),
+                "specialNote_desc"  => productQuery.OrderByDescending(p => p.SpecialNote),
+                _ => productQuery
             };
 
-            return product.ToList();
+            var product = await productQuery
+                .Select(p => new ProductDTO(p.Id, p.Name, p.CategoryId, p.Category.Name, p.Description, p.Cost, p.GeneralNote ?? "", p.SpecialNote ?? ""))
+                .ToListAsync();
+
+            return product;
         }
 
         public async Task AddAsync(ProductDTO productDTO) 
